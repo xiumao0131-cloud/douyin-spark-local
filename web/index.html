@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>续火花</title>
+  <link rel="stylesheet" href="/static/app.css?v=4">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">续火花</span>
+      <span id="status-pill" class="pill pill-gray">读取中…</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-pending" class="btn btn-warn">待筛选</button>
+      <button id="btn-run" class="btn btn-primary">立即发送</button>
+      <button id="btn-catchup" class="btn">窗口内补跑</button>
+      <button id="btn-check" class="btn">检查登录</button>
+      <button id="btn-login" class="btn">续期登录</button>
+      <button id="btn-cookie" class="btn">粘贴 Cookie</button>
+      <button id="btn-pause" class="btn btn-warn">暂停</button>
+      <select id="theme-select" class="theme-select">
+        <option value="system">跟随系统</option>
+        <option value="light">白天</option>
+        <option value="dark">夜间</option>
+      </select>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">总览</button>
+    <button class="tab" data-tab="friends">好友</button>
+    <button class="tab" data-tab="messages">文案</button>
+    <button class="tab" data-tab="settings">设置与日志</button>
+  </nav>
+
+  <main>
+    <section id="tab-overview" class="tab-panel">
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">今日进度</div>
+          <div class="card-value" id="ov-progress">– / –</div>
+          <div class="card-note" id="ov-progress-note"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">登录状态</div>
+          <div class="card-value" id="ov-login">–</div>
+          <div class="card-note" id="ov-login-note"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">今日发送窗口</div>
+          <div class="card-value" id="ov-window">–</div>
+          <div class="card-note" id="ov-next">下次计划：–</div>
+        </div>
+        <div class="card">
+          <div class="card-label">文案池</div>
+          <div class="card-value" id="ov-pool">–</div>
+          <div class="card-note" id="ov-paused"></div>
+        </div>
+        <div class="card card-wide">
+          <div class="card-label">今日总结</div>
+          <div class="card-value" id="ov-summary">–</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>今日时段</h2>
+          <span id="ov-day" class="muted"></span>
+        </div>
+        <div id="ov-today" class="slot-list"></div>
+      </div>
+
+      <div class="section" id="ov-run-section">
+        <div class="section-head"><h2>最近一轮</h2></div>
+        <p id="ov-run" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="tab-friends" class="tab-panel hidden">
+      <div class="section">
+        <div class="section-head">
+          <h2>好友</h2>
+          <span class="muted">关闭开关后当天不再发送；删除不影响抖音本身</span>
+        </div>
+        <form id="friend-form" class="inline-form">
+          <input id="friend-input" type="text" placeholder="输入好友昵称添加" autocomplete="off">
+          <button class="btn btn-primary" type="submit">添加</button>
+        </form>
+        <div id="friend-list" class="friend-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-messages" class="tab-panel hidden">
+      <div class="section">
+        <div class="section-head">
+          <h2>待筛选</h2>
+          <span id="pending-count" class="muted"></span>
+          <button id="pending-accept-all" class="btn">全部采纳</button>
+        </div>
+        <p class="muted">Codex 生成的候选文案。采纳后才进入发送池；删除不影响现有池子。</p>
+        <div id="pending-list" class="message-list"></div>
+      </div>
+      <div class="section">
+        <div class="section-head">
+          <h2>文案池</h2>
+          <span class="muted">每天每位好友随机挑一条，当天互不重复、不与上一条重复</span>
+        </div>
+        <form id="message-form" class="inline-form">
+          <input id="message-input" type="text" placeholder="添加一条文案（≤120字，不含微信/QQ/链接）" autocomplete="off">
+          <select id="message-when" class="theme-select">
+            <option value="any">通用</option>
+            <option value="morning">晨间</option>
+            <option value="forenoon">上午</option>
+            <option value="noon">午间</option>
+            <option value="afternoon">下午</option>
+            <option value="evening">晚间</option>
+          </select>
+          <button class="btn btn-primary" type="submit">添加</button>
+        </form>
+        <p id="message-count" class="muted"></p>
+        <div id="message-list" class="message-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-settings" class="tab-panel hidden">
+      <div class="section">
+        <div class="section-head"><h2>设置</h2></div>
+        <form id="settings-form" class="settings-form">
+          <label>发送窗口开始 <input name="windowStart" type="time"></label>
+          <label>发送窗口结束 <input name="windowEnd" type="time"></label>
+          <label>好友间隔下限（秒） <input name="minIntervalSec" type="number" min="5"></label>
+          <label>好友间隔上限（秒） <input name="maxIntervalSec" type="number" min="5"></label>
+          <label>每人每天最多尝试 <input name="retryPerFriendPerDay" type="number" min="1" max="5"></label>
+          <label>连续异常日暂停阈值 <input name="autoPauseOnConsecutiveBadDays" type="number" min="1" max="7"></label>
+          <label>单日拒收占比阈值 <input name="badDayRatioThreshold" type="number" min="0.1" max="1" step="0.1"></label>
+          <button class="btn btn-primary" type="submit">保存</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>今日明细</h2>
+          <span id="log-day" class="muted"></span>
+        </div>
+        <table class="log-table">
+          <thead><tr><th>好友</th><th>状态</th><th>文案</th><th>尝试</th><th>说明</th></tr></thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>最近记录</h2></div>
+        <table class="log-table">
+          <thead><tr><th>日期</th><th>确认</th><th>未确认</th><th>拒收</th><th>失败</th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    所有数据仅保存在本机 data/ 目录；项目文件夹的 Git 已忽略敏感数据。
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+  <dialog id="cookie-dialog">
+    <h3>粘贴 Cookie 续期</h3>
+    <p class="muted">
+      从你已登录抖音的浏览器导出 Cookie（Cookie-Editor 等扩展的 JSON 数组），
+      或直接复制请求头里的 Cookie 字符串，粘贴到下面。校验通过才会保存。
+    </p>
+    <textarea id="cookie-input" placeholder='[{"name":"sessionid","value":"...","domain":".douyin.com"}, ...] 或 sessionid=...; sid_guard=...'></textarea>
+    <div class="dialog-actions">
+      <button id="cookie-cancel" class="btn">取消</button>
+      <button id="cookie-save" class="btn btn-primary">校验并保存</button>
+    </div>
+  </dialog>
+  <script src="/static/app.js?v=4"></script>
+</body>
+</html>

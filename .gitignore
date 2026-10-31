@@ -1,0 +1,26 @@
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local application data: never commit a user's account or conversation data
+data/config.json
+data/messages.json
+data/messages_pending.json
+data/secrets.json
+data/state.sqlite3*
+data/debug_artifacts/
+data/profiles/
+data/.tmp-*
+
+# Local outputs
+logs/
+reports/
+*.log
+.DS_Store
+
+# A user's installed LaunchAgent is machine-specific
+launchd/*.plist
